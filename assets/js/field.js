@@ -1,15 +1,15 @@
 "use strict";
 
 class Field{
-    constructor(context){
+    constructor(context) {
         this.context = context;
-        this.reset();
         this.drawField();
         this.drawHoldBlock();
         this.drawNextBlock();
     }
+
     // Нарисовать поле
-    drawField(){        
+    drawField() {
         // Рисуем сетку поля
         context.lineWidth = 1;
         context.strokeStyle = "rgb(100, 100, 100)"; //
@@ -30,53 +30,53 @@ class Field{
         context.strokeStyle = "white";
         context.lineWidth = 4;
         context.beginPath();
-        context.moveTo(fieldLeft, outlineGap);
+        context.moveTo(fieldLeft - outlineGap, 0);
         context.lineTo(fieldLeft, fieldParam.height - outlineGap);
         context.lineTo(fieldRight, fieldParam.height - outlineGap);
-        context.lineTo(fieldRight, outlineGap);
+        context.lineTo(fieldRight + outlineGap * 2, 0);
         context.stroke();
     }
 
     // Нарисовать NEXT блок
-    drawNextBlock(){
+    drawNextBlock() {
         // Контур
         context.beginPath();
         context.strokeStyle = "white";
         context.lineWidth = outlineWidth;
-        context.moveTo(fieldRight - outlineGap, outlineGap);
+        context.moveTo(fieldRight + outlineGap * 2, outlineGap);
         context.lineTo(canvas.width - outlineGap, outlineGap);
         context.lineTo(canvas.width - outlineGap, blockSize * 15.8 - 20);
         context.lineTo(canvas.width - outlineGap - 20, blockSize * 15.8);
-        context.lineTo(fieldRight, blockSize * 15.8);
-        context.lineTo(fieldRight, 0);
+        context.lineTo(fieldRight + outlineGap * 2, blockSize * 15.8);
+        context.lineTo(fieldRight + outlineGap * 2, 0);
         context.stroke();
         // Шапка
         context.beginPath();
         context.fillStyle = "white";
-        context.moveTo(fieldRight - outlineGap, outlineGap);
+        context.moveTo(fieldRight + outlineGap * 2, outlineGap);
         context.lineTo(canvas.width - outlineGap, outlineGap);
         context.lineTo(canvas.width - outlineGap, blockSize * 0.8 - outlineGap);
-        context.lineTo(fieldRight, blockSize * 0.8 - outlineGap);
-        context.lineTo(fieldRight, 0);
+        context.lineTo(fieldRight + outlineGap * 2, blockSize * 0.8 - outlineGap);
+        context.lineTo(fieldRight + outlineGap * 2, 0);
         context.fill();
         // Текст шапки
         context.beginPath();
         context.fillStyle = "black";
         context.lineWidth = 100;
         context.font = "bold 32px sans-serif";
-        context.fillText("NEXT", fieldRight, outlineGap + (32 * 0.75));
+        context.fillText("NEXT", fieldRight + outlineGap * 2, outlineGap + (32 * 0.75));
         context.closePath();
     }
 
     // Нарисовать HOLD блок
-    drawHoldBlock(){
+    drawHoldBlock() {
         // Контур
         context.beginPath();
         context.strokeStyle = "white";
         context.lineWidth = outlineWidth;
         context.moveTo(outlineGap, outlineGap);
-        context.lineTo(fieldParam.width / 2 + outlineGap, outlineGap);
-        context.lineTo(fieldParam.width / 2 + outlineGap, blockSize * 3.8);
+        context.lineTo(fieldParam.width / 2, outlineGap);
+        context.lineTo(fieldParam.width / 2, blockSize * 3.8);
         context.lineTo(20, blockSize * 3.8);
         context.lineTo(outlineGap, blockSize * 3.8 - 20);
         context.lineTo(outlineGap, 0);
@@ -96,17 +96,30 @@ class Field{
         context.fillText("HOLD", outlineGap, outlineGap + (32 * 0.75));
     }
 
+    // Перерисовать поле
+    redraw() {
+        this.drawField();
+        // Зарисовать поле
+        this.context.fillStyle = "black";
+        this.context.fillRect(fieldLeft, 0, blockSize * 10, this.context.canvas.height);
+        // Перерисовать поле
+        this.drawField();
+    }
+
+    // Обнулить поле
     reset() {
-        this.field = this.getEmptyField();
-        context.fillStyle = "black";
-        context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+        //Получить чистое поле
+        this.grid = this.getEmptyField();
     }
 
     getEmptyField() {
-        this.drawField();
         return Array.from(
           {length: 20}, () => Array(10).fill(0)
         );
+    } 
+
+    updateCoordinates(currentShape) {
+        this.grid[currentShape.y][currentShape.x] = 1;
     }
 }
 

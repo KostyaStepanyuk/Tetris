@@ -6,15 +6,7 @@ let fieldParam = {
     height: 800
 }
 
-let shapes = {
-    I: 1,
-    O: 2,
-    Z: 3,
-    S: 4,
-    T: 5,
-    L: 6,
-    J: 7
-}
+
 
 let blockSize = fieldParam.width / 10; // Ширина/высота ячейки/кубика
 let outlineWidth = 4; // Ширина линии обводки
@@ -33,17 +25,44 @@ let context = canvas.getContext('2d');
 
 
 let field = new Field(context);
-let shape = new Shape(context);
 
 
 
-function drawShape(shapeID, startingPos){
 
-    switch(shapeID){
-        case 1:
-            context.fillStyle = "red";
-            
+
+function moveShape(EO){
+    EO = EO || window.event;
+    EO.preventDefault();
+    // Получить текущие координаты и фигурку
+    let currentValues = {
+        shape : shape.shape,
+        x: shape.x,
+        y: shape.y
     }
+    // TODO: Добавить проверку
+
+    // Изменить текущие координаты
+    if (EO.key === 'ArrowLeft') shape.move('moveLeft');
+    if (EO.key === 'ArrowRight') shape.move('moveRight');
+    if (EO.key === 'ArrowDown') shape.move('moveDown');
+    if (EO.key === 'ArrowUp') shape.move('rotate');
+    // Очистить поле
+    field.redraw();
+    // Перерисовать фигурку
+    shape.draw(shape);
+
+    field.updateCoordinates(shape);
+    console.table(field.grid);
 }
 
-drawShape(shapes.L, [4, 3]);
+
+function play(){
+    field.reset();
+    document.addEventListener('keydown', moveShape);
+    
+    
+}
+
+
+let shape = new Shape(context, colors.Z, shapes.Z, [3, 0]);
+shape.draw(shape);

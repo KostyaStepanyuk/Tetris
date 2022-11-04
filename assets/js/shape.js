@@ -1,24 +1,31 @@
 "use strict";
 
 class Shape{
-    constructor(context, color, shape){
+    constructor(context, color, shape, coordinates){
         this.context = context;
-        this.color = 'red';
-        this.shape = [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]];
+        this.color = color;
+        this.shape = shape;
         
         // Начальная позиция
-        this.x = fieldLeft + blockSize * 3;
-        this.y = blockSize * 0;
+        this.x = coordinates[0];
+        this.y = coordinates[1];
     }
 
-    draw() {
+    draw(shape) {
         this.context.fillStyle = this.color;
         for (let i = 0; i < this.shape.length; i++){
             for (let j = 0; j < this.shape[i].length; j++){
-                if (this.shape[i][j] > 0)
-                    this.context.fillRect(this.x + blockSize * j, this.y + blockSize * i, blockSize, blockSize);
+                if (shape.shape[i][j] > 0)
+                    this.context.fillRect(fieldLeft + this.x * blockSize + blockSize * j, 
+                                          this.y * blockSize + blockSize * i, 
+                                          blockSize, blockSize);
             }
         }
     }
 
+    move(action) {
+        if (action === 'moveLeft') this.x -= 1;
+        if (action === 'moveRight') this.x += 1;
+        if (action === 'moveDown') this.y += 1;
+    }
 }

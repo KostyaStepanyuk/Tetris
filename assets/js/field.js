@@ -119,7 +119,22 @@ class Field{
     } 
 
     updateCoordinates(currentShape) {
-        this.grid[currentShape.y][currentShape.x] = 1;
+        // Обнуляем старые координаты
+        if (currentShape.oldX !== undefined && currentShape.oldY !== undefined) {
+            for (let i = 0; i < currentShape.shape.length; i++){
+                for (let j = 0; j < currentShape.shape[i].length; j++){
+                    if (currentShape.shape[i][j] > 0)
+                        this.grid[currentShape.oldY + i][currentShape.oldX + j] = 0;
+                }
+            }
+        }
+        // Обновляем новые координаты
+        for (let i = 0; i < currentShape.shape.length; i++){
+            for (let j = 0; j < currentShape.shape[i].length; j++){
+                if (currentShape.shape[i][j] > 0)
+                    this.grid[currentShape.y + i][currentShape.x + j] = 8;
+            }
+        }
     }
 }
 

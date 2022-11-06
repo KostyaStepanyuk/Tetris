@@ -1,11 +1,11 @@
 const colors = {  
-  I: 'cyan',
-  L: 'blue',
-  J: 'orange',
-  O: 'yellow',
-  S: 'green',
-  T: 'purple',
-  Z: 'red'
+  1: 'cyan',
+  2: 'blue',
+  3: 'orange',
+  4: 'yellow',
+  5: 'green',
+  6: 'purple',
+  7: 'red'
 };
 
 const shapes = {

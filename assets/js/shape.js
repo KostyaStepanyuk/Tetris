@@ -9,15 +9,19 @@ class Shape{
         // Начальная позиция
         this.x = coordinates[0];
         this.y = coordinates[1];
+
+        // Предыдущие координаты
+        this.oldX;
+        this.oldY;
     }
 
-    draw(shape) {
+    draw(shape, field) {
         this.context.fillStyle = this.color;
-        for (let i = 0; i < this.shape.length; i++){
-            for (let j = 0; j < this.shape[i].length; j++){
-                if (shape.shape[i][j] > 0)
-                    this.context.fillRect(fieldLeft + this.x * blockSize + blockSize * j, 
-                                          this.y * blockSize + blockSize * i, 
+        for (let i = 0; i < field.grid.length; i++){
+            for (let j = 0; j < field.grid[i].length; j++){
+                if (field.grid[i][j] > 0)
+                    this.context.fillRect(fieldLeft + j * blockSize, 
+                                          i * blockSize, 
                                           blockSize, blockSize);
             }
         }

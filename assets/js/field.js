@@ -110,6 +110,7 @@ class Field{
     reset() {
         //Получить чистое поле
         this.grid = this.getEmptyField();
+        this.redraw();
     }
 
     getEmptyField() {
@@ -123,16 +124,52 @@ class Field{
         if (currentShape.oldX !== undefined && currentShape.oldY !== undefined) {
             for (let i = 0; i < currentShape.shape.length; i++){
                 for (let j = 0; j < currentShape.shape[i].length; j++){
-                    if (currentShape.shape[i][j] > 0)
+                    if (currentShape.oldY === -1)
+                        currentShape.oldY = 0;
+                    if (this.grid[currentShape.oldY + i] !== undefined)
                         this.grid[currentShape.oldY + i][currentShape.oldX + j] = 0;
                 }
             }
         }
+
         // Обновляем новые координаты
         for (let i = 0; i < currentShape.shape.length; i++){
             for (let j = 0; j < currentShape.shape[i].length; j++){
-                if (currentShape.shape[i][j] > 0)
+                if (currentShape.shape[i][j] > 0){
                     this.grid[currentShape.y + i][currentShape.x + j] = 8;
+                }       
+            }
+        }
+    }
+
+    drop() {
+        shape.move('moveDown');
+    }
+
+    freeze(currentShape) {
+        let colorID;
+        for (let color in colors){
+            if (currentShape.color === colors[color]) colorID = color;
+        }
+
+        // Обнуляем старые координаты
+        if (currentShape.oldX !== undefined && currentShape.oldY !== undefined) {
+            for (let i = 0; i < currentShape.shape.length; i++){
+                for (let j = 0; j < currentShape.shape[i].length; j++){
+                    if (currentShape.oldY === -1)
+                        currentShape.oldY = 0;
+                    if (this.grid[currentShape.oldY + i] !== undefined)
+                        this.grid[currentShape.oldY + i][currentShape.oldX + j] = 0;
+                }
+            }
+        }
+        
+        // Обновляем новые координаты
+        for (let i = 0; i < currentShape.shape.length; i++){
+            for (let j = 0; j < currentShape.shape[i].length; j++){
+                if (currentShape.shape[i][j] > 0){
+                    this.grid[currentShape.y + i][currentShape.x + j] = Number(colorID);
+                }       
             }
         }
     }

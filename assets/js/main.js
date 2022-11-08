@@ -34,15 +34,16 @@ function moveShape(EO){
         x: shape.x,
         y: shape.y
     }
-    
+    console.log(EO.key);
     // Проверяем доступность хода и изменяем текущие координаты
     if (EO.key === 'ArrowLeft') 
-        if (isNextMoveAvaible(field, currentValues, EO.key)) shape.move('moveLeft');
+        if (isNextMoveAvaible(field, shape, EO.key)) shape.move('moveLeft');
     if (EO.key === 'ArrowRight') 
-        if (isNextMoveAvaible(field, currentValues, EO.key)) shape.move('moveRight');
+        if (isNextMoveAvaible(field, shape, EO.key)) shape.move('moveRight');
     if (EO.key === 'ArrowDown') 
         if (isNextMoveAvaible(field, shape, EO.key)) shape.move('moveDown');
     if (EO.key === 'ArrowUp') shape.move('rotate');
+    if (EO.key === ' ') shape.move('hardDrop');
 
     // Очищаем поле
     field.redraw();
@@ -90,7 +91,7 @@ function play(){
     shape.spawnShape();
 
     // Обновляем массив поля
-    // field.updateCoordinates(shape);
+    //field.updateCoordinates(shape);
 
     // Отрисовываем фигурку
     shape.draw(field);
@@ -107,13 +108,12 @@ function animate(now = 0) {
         time.start = now; // Начать отсчёт сначала
         
         if (isNextMoveAvaible(field, shape, 'ArrowDown')) shape.move("moveDown"); // Опустить фигурку на 1 блок
-    }
-
-    if (!isNextMoveAvaible(field, shape, 'ArrowDown')){
-        field.freeze(shape);
-        shape.spawnShape();
-        field.updateCoordinates(shape);
-        shape.draw(field);
+        else{
+            field.freeze(shape);
+            shape.spawnShape();
+            field.updateCoordinates(shape);
+            shape.draw(field);
+        }
     }
 
     // Очищаем поле

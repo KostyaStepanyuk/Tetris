@@ -98,7 +98,6 @@ class Field{
 
     // Перерисовать поле
     redraw() {
-        this.drawField();
         // Зарисовать поле
         this.context.fillStyle = "black";
         this.context.fillRect(fieldLeft, 0, blockSize * 10, this.context.canvas.height);
@@ -126,7 +125,7 @@ class Field{
                 for (let j = 0; j < currentShape.shape[i].length; j++){
                     if (currentShape.oldY === -1)
                         currentShape.oldY = 0;
-                    if (this.grid[currentShape.oldY + i] !== undefined)
+                    if (this.grid[currentShape.oldY + i][currentShape.oldX + j] !== undefined && this.grid[currentShape.oldY + i][currentShape.oldX + j] === 8)
                         this.grid[currentShape.oldY + i][currentShape.oldX + j] = 0;
                 }
             }
@@ -154,12 +153,14 @@ class Field{
 
         // Обнуляем старые координаты
         if (currentShape.oldX !== undefined && currentShape.oldY !== undefined) {
-            for (let i = 0; i < currentShape.shape.length; i++){
-                for (let j = 0; j < currentShape.shape[i].length; j++){
-                    if (currentShape.oldY === -1)
-                        currentShape.oldY = 0;
-                    if (this.grid[currentShape.oldY + i] !== undefined)
-                        this.grid[currentShape.oldY + i][currentShape.oldX + j] = 0;
+            for (let y = 0; y < currentShape.shape.length; y++){
+                for (let x = 0; x < currentShape.shape[y].length; x++){
+                    if (currentShape.shape[y][x] !== 0) {
+                        if (currentShape.oldY === -1)
+                            currentShape.oldY = 0;
+                        if (this.grid[currentShape.oldY + y][currentShape.oldX + x] !== undefined)
+                            this.grid[currentShape.oldY + y][currentShape.oldX + x] = 0;
+                    }
                 }
             }
         }

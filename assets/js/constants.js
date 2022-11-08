@@ -1,8 +1,8 @@
 const colors = {  
-  1: 'cyan',
-  2: 'blue',
+  1: 'rgb(50, 255, 255)',
+  2: 'rgb(50, 50, 255)',
   3: 'orange',
-  4: 'yellow',
+  4: 'rgb(220, 220, 0)',
   5: 'green',
   6: 'purple',
   7: 'red'

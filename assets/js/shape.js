@@ -3,16 +3,12 @@
 class Shape{
     constructor(context){
         this.context = context;
-        // this.color = color;
-        // this.shape = shape;
-        
-        // // Начальная позиция
-        // this.x = coordinates[0];
-        // this.y = coordinates[1];
 
         // Предыдущие координаты
         this.oldX;
         this.oldY;
+        
+        this.isHardDropped = false;
     }
 
     draw (field) {
@@ -22,7 +18,7 @@ class Shape{
                     if (field.grid[i][j] === 8) 
                         this.context.fillStyle = this.color;
                     else 
-                        this.context.fillStyle = colors[field.grid[i][j]];
+                        this.context.fillStyle = COLORS[field.grid[i][j]];
                     this.context.fillRect(fieldLeft + j * blockSize, i * blockSize, 
                                           blockSize, blockSize);
                     this.context.lineWidth = 3;
@@ -45,22 +41,25 @@ class Shape{
         if (action === 'moveDown') this.y += 1;
         if (action === 'rotate') this.rotate();
         if (action === 'hardDrop'){
+            this.isHardDropped = true;
             for (;;){
                 if (isNextMoveAvaible(field, this, 'ArrowDown')) this.y += 1;
                 else break;
             }
         }
+        field.updateCoordinates(this);
     }
 
     checkPosition() {
         if (this.x < 0) this.x = 0;
-        if (this.x + this.shape.length - 1 > 9) 
-            this.x -= this.x + (this.shape.length - 1) - (field.grid[0].length - 1);
+        if (this.x + this.shape.length - 1 > FIELD.width - 1) 
+            this.x -= this.x + (this.shape.length - 1) - (FIELD.width - 1);
         if (this.y === -1) this.y = 0;
-        if (this.y + this.shape.length > 19) this.y = this.y - (this.y + (this.shape.length - 1) - 19);
+        if (this.y + this.shape.length > FIELD.height - 1) this.y = this.y - (this.y + (this.shape.length - 1) - (FIELD.height - 1));
     }
 
     rotate() {
+        let isRotateAvaible = true;
         let tempShape = JSON.parse(JSON.stringify(this)); // Создаём временную копию фигурки
         
         // Поворачиваем временную фигурку
@@ -76,47 +75,68 @@ class Shape{
         for (let y = 0; y < tempShape.shape.length; y++){
             for (let x = 0; x < tempShape.shape[y].length; x++){
                 if (tempShape.shape[y][x] > 0){
-                    if (tempShape.x + x < 0) {
+                    if (tempShape.x + x < 0) { // Блок фигурки левее поля
                         if (tempShape.x === this.x) {
                             this.x -= tempShape.x + x;
                             //debugger;
                         }
                     }
-                    if (tempShape.x + x > 9) {
+                    if (tempShape.x + x > FIELD.width - 1) { // Блок фигурки правее поля
                         if (tempShape.x === this.x) {
-                            this.x -= tempShape.x + x - 9;
+                            this.x -= tempShape.x + x - (FIELD.width - 1);
+                            if (tempShape.shapeType === 1){
+                                this.x--;    
+                            }
                             //debugger;
                         }
                     }
-                    if (tempShape.y + y < 0) {
+                    if (tempShape.y + y < 0) { // Блок фигурки выше поля
                         if (tempShape.y === this.y) {
                             this.y -= tempShape.y + y;
                             //debugger;
                         }
                     }
-                    if (field.grid[tempShape.y + y][tempShape.x + x] !== 0 && field.grid[tempShape.y + y][tempShape.x + x] !== 8) {
-                        ////////////////////////////////////////////
-                        // TODO: Добавить крутую обработку поворотов
-                        ////////////////////////////////////////////
-                        return;
+                    if (field.grid[tempShape.y + y] !== undefined) {
+                        if (field.grid[tempShape.y + y][tempShape.x + x] !== 0 && field.grid[tempShape.y + y][tempShape.x + x] !== 8) {
+                            isRotateAvaible = false;
+                        }
                     }
                 }       
             }
         }
 
-        // Поворачиваем фигурку
-        for (let y = 0; y < this.shape.length; ++y) {
-            for (let x = 0; x < y; ++x) {
-              [this.shape[x][y], this.shape[y][x]] = 
-              [this.shape[y][x], this.shape[x][y]];
+        if (isRotateAvaible) {
+            // Поворачиваем фигурку
+            for (let y = 0; y < this.shape.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                [this.shape[x][y], this.shape[y][x]] = 
+                [this.shape[y][x], this.shape[x][y]];
+                }
             }
+            this.shape.forEach(row => row.reverse());
         }
-        this.shape.forEach(row => row.reverse());
+
+        field.updateCoordinates(this);
     }
 
     spawnShape(){
-        // Генерируем случайный тип фигурки
-        this.shapeType = this.randomizeShapeType();
+        // Выбираем следующую фигурку
+        this.shapeType = mainBag[0][currentShapeNumber];
+        currentShapeNumber++;
+
+        if (currentShapeNumber > 6){
+            // Удалить первый мешок
+            mainBag.splice(0, 1);
+            // Создать новый мешок
+            let newInnerBag = createInnerBag();
+            // Закинуть новый мешок в конец
+            mainBag.push(newInnerBag);
+            // Обнулить счётчик текущей фигуры
+            currentShapeNumber = 0;
+        }
+
+
+        //this.shapeType = this.randomizeShapeType();
 
         // Присваем начальные координаты фигурке (Если это кубик, то x = 4)
         this.x = this.shapeType === 4 ? 4 : 3;
@@ -127,12 +147,8 @@ class Shape{
         this.oldY;
 
         // Присваеваем фигурке форму
-        this.shape = JSON.parse(JSON.stringify(shapes[this.shapeType]));
+        this.shape = JSON.parse(JSON.stringify(SHAPES[this.shapeType]));
         // Присваеваем фигурке цвет
-        this.color = colors[this.shapeType];
-    }
-
-    randomizeShapeType(){
-        return Math.floor(Math.random() * 7 + 1);
+        this.color = COLORS[this.shapeType];
     }
 }

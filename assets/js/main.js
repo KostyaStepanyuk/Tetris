@@ -1,21 +1,48 @@
 "use strict";
 
 // Параметры поля
-let fieldParam = {
+let fieldScreenParam = {
     width: 400,
-    height: 800
+    height: 880
 }
 
-let blockSize = fieldParam.width / 10;                                  // Ширина/высота кубика
-let outlineWidth = 4;                                                   // Ширина линии обводки
-let outlineGap = outlineWidth / 2;                                      // Ширина промежутка линии обводки
-let fieldLeft = fieldParam.width / 2 + outlineGap,                      // Левый край поля
-    fieldRight = fieldParam.width / 2 + fieldParam.width + outlineGap;  // Правый край поля
+// Создаём общий "мешок" фигурок
+let mainBag = Array(7);
+(function createMainBag() {
+    // Заполняем главный мешок 9 мешков по 7 элементов:
+    for (let i = 0; i < 9; i++) {
+        // Создаём внутренний мешок
+        let innerBag = createInnerBag(); 
+        
+        // Закидываем готовый внутренний мешок в главный
+        mainBag[i] = innerBag;
+    }
+})();
+
+function createInnerBag() {
+    let innerBag;
+    // Генерируем готовый внутренний мешок
+    for (let j = 0; j < 7; j++) {
+        innerBag = Array.from({length: 7}, (_, i) => i + 1); // Заполняем внутренний мешок числами от 1 до 7
+        shuffle(innerBag); // Перемешиваем содержимое 'мешка'
+    }
+    return innerBag;
+}
+
+// Счётчик текущей фигуры
+let currentShapeNumber = 0;
+
+
+let blockSize = fieldScreenParam.width / 10;                                        // Ширина/высота кубика
+let outlineWidth = 4;                                                               // Ширина линии обводки
+let outlineGap = outlineWidth / 2;                                                  // Ширина промежутка линии обводки
+let fieldLeft = fieldScreenParam.width / 2 + outlineGap,                            // Левый край поля
+    fieldRight = fieldScreenParam.width / 2 + fieldScreenParam.width + outlineGap;  // Правый край поля
 
 // Поиск канваса
 let canvas = document.getElementById("canvas");
-canvas.width = fieldParam.width * 2;    // Устанавливаем ширину канваса
-canvas.height = fieldParam.height;      // Устанавливаем высоту канваса
+canvas.width = fieldScreenParam.width * 2;    // Устанавливаем ширину канваса
+canvas.height = fieldScreenParam.height;      // Устанавливаем высоту канваса
 let context = canvas.getContext('2d');  // Получаем контекст для рисования
 
 // Создаём экземпляр поля
@@ -45,11 +72,13 @@ function moveShape(EO){
     if (EO.key === 'ArrowUp') shape.move('rotate');
     if (EO.key === ' ') shape.move('hardDrop');
 
-    // Очищаем поле
-    field.redraw();
+    
 
     // Обновляем новые координаты
     field.updateCoordinates(shape);
+
+    // Очищаем поле
+    field.redraw();
     
     // Перерисовываем фигурку
     shape.draw(field);
@@ -109,12 +138,19 @@ function animate(now = 0) {
         
         if (isNextMoveAvaible(field, shape, 'ArrowDown')) shape.move("moveDown"); // Опустить фигурку на 1 блок
         else{
-            field.freeze(shape);
+            setTimeout(field.freeze(shape), 2000);
             shape.spawnShape();
             field.updateCoordinates(shape);
             shape.draw(field);
         }
     }
+
+    if (shape.isHardDropped){
+        field.freeze(shape);
+    }
+
+    // Очищаем линии
+    field.clearLines();
 
     // Очищаем поле
     field.redraw();
@@ -127,4 +163,20 @@ function animate(now = 0) {
 
     requestAnimationFrame(animate);
     // setTimeout(animate, 1000);
+}
+
+
+function immitateProblem(){
+    debugger;
+    shape.move('hardDrop');
+    shape.move('moveRight');
+    
+}
+
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      let j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
 }

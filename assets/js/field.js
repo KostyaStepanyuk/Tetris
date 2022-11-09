@@ -13,16 +13,16 @@ class Field{
         // Рисуем сетку поля
         context.lineWidth = 1;
         context.strokeStyle = "rgb(100, 100, 100)"; //
-        for (let i = fieldLeft; i <= fieldLeft + fieldParam.width; i += blockSize){ // Вертикальные линии
+        for (let i = fieldLeft; i <= fieldLeft + fieldScreenParam.width; i += blockSize){ // Вертикальные линии
             context.beginPath();
             context.moveTo(i, 0);
-            context.lineTo(i, fieldParam.height);
+            context.lineTo(i, fieldScreenParam.height);
             context.stroke();
         }
-        for (let i = 0; i <= fieldParam.height; i += blockSize){ // Горизонтальные линии
+        for (let i = 0; i <= fieldScreenParam.height; i += blockSize){ // Горизонтальные линии
             context.beginPath();
             context.moveTo(fieldLeft, i);
-            context.lineTo(fieldParam.width / 2 + fieldParam.width, i);
+            context.lineTo(fieldScreenParam.width / 2 + fieldScreenParam.width, i);
             context.stroke();
         }
 
@@ -31,8 +31,8 @@ class Field{
         context.lineWidth = 4;
         context.beginPath();
         context.moveTo(fieldLeft - outlineGap, 0);
-        context.lineTo(fieldLeft, fieldParam.height - outlineGap);
-        context.lineTo(fieldRight, fieldParam.height - outlineGap);
+        context.lineTo(fieldLeft, fieldScreenParam.height - outlineGap);
+        context.lineTo(fieldRight, fieldScreenParam.height - outlineGap);
         context.lineTo(fieldRight + outlineGap * 2, 0);
         context.stroke();
     }
@@ -75,8 +75,8 @@ class Field{
         context.strokeStyle = "white";
         context.lineWidth = outlineWidth;
         context.moveTo(outlineGap, outlineGap);
-        context.lineTo(fieldParam.width / 2, outlineGap);
-        context.lineTo(fieldParam.width / 2, blockSize * 3.8);
+        context.lineTo(fieldScreenParam.width / 2, outlineGap);
+        context.lineTo(fieldScreenParam.width / 2, blockSize * 3.8);
         context.lineTo(20, blockSize * 3.8);
         context.lineTo(outlineGap, blockSize * 3.8 - 20);
         context.lineTo(outlineGap, 0);
@@ -85,8 +85,8 @@ class Field{
         context.beginPath();
         context.fillStyle = "white";
         context.moveTo(outlineGap, outlineGap);
-        context.lineTo(fieldParam.width / 2, outlineGap);
-        context.lineTo(fieldParam.width / 2, blockSize * 0.8);
+        context.lineTo(fieldScreenParam.width / 2, outlineGap);
+        context.lineTo(fieldScreenParam.width / 2, blockSize * 0.8);
         context.lineTo(outlineGap, blockSize * 0.8);
         context.fill();
         // Текст шапки
@@ -114,7 +114,7 @@ class Field{
 
     getEmptyField() {
         return Array.from(
-          {length: 20}, () => Array(10).fill(0)
+          {length: FIELD.height}, () => Array(FIELD.width).fill(0)
         );
     } 
 
@@ -125,8 +125,10 @@ class Field{
                 for (let j = 0; j < currentShape.shape[i].length; j++){
                     if (currentShape.oldY === -1)
                         currentShape.oldY = 0;
-                    if (this.grid[currentShape.oldY + i][currentShape.oldX + j] !== undefined && this.grid[currentShape.oldY + i][currentShape.oldX + j] === 8)
-                        this.grid[currentShape.oldY + i][currentShape.oldX + j] = 0;
+                    if (this.grid[currentShape.oldY + i] !== undefined) {
+                        if (this.grid[currentShape.oldY + i][currentShape.oldX + j] === 8)
+                            this.grid[currentShape.oldY + i][currentShape.oldX + j] = 0;
+                    }
                 }
             }
         }
@@ -139,6 +141,12 @@ class Field{
                 }       
             }
         }
+
+        // Очищаем поле
+        field.redraw();
+        
+        // Перерисовываем фигурку
+        shape.draw(field);
     }
 
     drop() {
@@ -147,8 +155,8 @@ class Field{
 
     freeze(currentShape) {
         let colorID;
-        for (let color in colors){
-            if (currentShape.color === colors[color]) colorID = color;
+        for (let color in COLORS){
+            if (currentShape.color === COLORS[color]) colorID = color;
         }
 
         // Обнуляем старые координаты
@@ -173,6 +181,26 @@ class Field{
                 }       
             }
         }
+
+        // Очищаем поле
+        field.redraw();
+        
+        // Перерисовываем фигурку
+        shape.draw(field);
+    }
+
+    clearLines() {
+        let lines = 0;
+
+        this.grid.forEach((row, index) => {
+            if (row.every(element => element !== 0 && element !== 8)) {
+                lines++;
+
+                this.grid.splice(index, 1);
+
+                this.grid.unshift(Array(10).fill(0));
+            }
+        })
     }
 }
 

@@ -46,6 +46,7 @@ class Shape{
                 if (isNextMoveAvaible(field, this, 'ArrowDown')) this.y += 1;
                 else break;
             }
+            field.freeze(this);
         }
         field.updateCoordinates(this);
     }
@@ -120,6 +121,7 @@ class Shape{
     }
 
     spawnShape(){
+        this.isHardDropped = false;
         // Выбираем следующую фигурку
         this.shapeType = mainBag[0][currentShapeNumber];
         currentShapeNumber++;
@@ -150,5 +152,7 @@ class Shape{
         this.shape = JSON.parse(JSON.stringify(SHAPES[this.shapeType]));
         // Присваеваем фигурке цвет
         this.color = COLORS[this.shapeType];
+
+        field.updateCoordinates(this);
     }
 }

@@ -119,16 +119,24 @@ class Field{
     } 
 
     updateCoordinates(currentShape) {
-        // Обнуляем старые координаты
-        if (currentShape.oldX !== undefined && currentShape.oldY !== undefined) {
-            for (let i = 0; i < currentShape.shape.length; i++){
-                for (let j = 0; j < currentShape.shape[i].length; j++){
-                    if (currentShape.oldY === -1)
-                        currentShape.oldY = 0;
-                    if (this.grid[currentShape.oldY + i] !== undefined) {
-                        if (this.grid[currentShape.oldY + i][currentShape.oldX + j] === 8)
-                            this.grid[currentShape.oldY + i][currentShape.oldX + j] = 0;
-                    }
+        // Обнуляем все старые координаты
+        // if (currentShape.oldX !== undefined && currentShape.oldY !== undefined) {
+        //     for (let i = 0; i < currentShape.shape.length; i++){
+        //         for (let j = 0; j < currentShape.shape[i].length; j++){
+        //             if (currentShape.oldY === -1)
+        //                 currentShape.oldY = 0;
+        //             if (this.grid[currentShape.oldY + i] !== undefined) {
+        //                 if (this.grid[currentShape.oldY + i][currentShape.oldX + j] === 8)
+        //                     this.grid[currentShape.oldY + i][currentShape.oldX + j] = 0;
+        //             }
+        //         }
+        //     }
+        // }
+
+        for (let y = 0; y < FIELD.height; y++){
+            for (let x = 0; x < FIELD.width; x++){
+                if (this.grid[y][x] === 8) {
+                    this.grid[y][x] = 0;
                 }
             }
         }
@@ -143,10 +151,10 @@ class Field{
         }
 
         // Очищаем поле
-        field.redraw();
+        this.redraw();
         
         // Перерисовываем фигурку
-        shape.draw(field);
+        shape.draw(this);
     }
 
     drop() {
@@ -154,12 +162,14 @@ class Field{
     }
 
     freeze(currentShape) {
+        if (isNextMoveAvaible(field, shape, 'ArrowDown')) return;
+
         let colorID;
         for (let color in COLORS){
             if (currentShape.color === COLORS[color]) colorID = color;
         }
 
-        // Обнуляем старые координаты
+        // Обнуляем все старые координаты
         if (currentShape.oldX !== undefined && currentShape.oldY !== undefined) {
             for (let y = 0; y < currentShape.shape.length; y++){
                 for (let x = 0; x < currentShape.shape[y].length; x++){
@@ -172,6 +182,8 @@ class Field{
                 }
             }
         }
+
+        
         
         // Обновляем новые координаты
         for (let i = 0; i < currentShape.shape.length; i++){
@@ -183,10 +195,9 @@ class Field{
         }
 
         // Очищаем поле
-        field.redraw();
+        this.redraw();
         
-        // Перерисовываем фигурку
-        shape.draw(field);
+        shape.spawnShape();
     }
 
     clearLines() {
@@ -200,7 +211,9 @@ class Field{
 
                 this.grid.unshift(Array(10).fill(0));
             }
-        })
+        });
+
+        this.updateCoordinates(shape);
     }
 }
 

@@ -19,6 +19,7 @@ let mainBag = Array(7);
     }
 })();
 
+// Создать внутренний мешок
 function createInnerBag() {
     let innerBag;
     // Генерируем готовый внутренний мешок
@@ -95,7 +96,7 @@ function isNextMoveAvaible(field, currentShape, nextMove) {
     for (let i = 0; i < currentShape.shape.length; i++){
         for (let j = 0; j < currentShape.shape[i].length; j++){
             if (currentShape.shape[i][j] > 0){
-                if (currentShape.x + j + posibleX < 0 || currentShape.x + j + posibleX > field.grid[0].length - 1) 
+                if (currentShape.x + j + posibleX < 0 || currentShape.x + j + posibleX > FIELD.width - 1) 
                     return false;
                 if (currentShape.y + i + posibleY > field.grid.length - 1) 
                     return false;
@@ -120,10 +121,7 @@ function play(){
     shape.spawnShape();
 
     // Обновляем массив поля
-    //field.updateCoordinates(shape);
-
-    // Отрисовываем фигурку
-    shape.draw(field);
+    field.updateCoordinates(shape);
 
     animate();
 }
@@ -131,38 +129,31 @@ function play(){
 const time = { start: 0, elapsed: 0, level: 1000 };
 
 function animate(now = 0) {
+    let freezeTimeout = undefined;
     time.elapsed = now - time.start; // Истёкшее время
-
+    let isNextMoveDownAvaible = true;
+    
+    // Опускаем фигурку каждую секунду на блок вниз
     if (time.elapsed > time.level) {
         time.start = now; // Начать отсчёт сначала
+
+        // Проверить доступность следющего смещения вниз
+        isNextMoveDownAvaible = isNextMoveAvaible(field, shape, 'ArrowDown');
         
-        if (isNextMoveAvaible(field, shape, 'ArrowDown')) shape.move("moveDown"); // Опустить фигурку на 1 блок
-        else{
-            setTimeout(field.freeze(shape), 2000);
-            shape.spawnShape();
-            field.updateCoordinates(shape);
-            shape.draw(field);
+        if (isNextMoveDownAvaible){
+            shape.move("moveDown"); // Опустить фигурку на 1 блок
         }
     }
-
-    if (shape.isHardDropped){
-        field.freeze(shape);
+    if (!isNextMoveDownAvaible){
+        if (!shape.isHardDropped){
+            freezeTimeout = setTimeout(function () {
+                field.freeze(shape);
+            }, 500);
+        }
     }
-
     // Очищаем линии
     field.clearLines();
-
-    // Очищаем поле
-    field.redraw();
-
-    // Обновляем новые координаты
-    field.updateCoordinates(shape);
-    
-    // Перерисовываем фигурку
-    shape.draw(field);
-
     requestAnimationFrame(animate);
-    // setTimeout(animate, 1000);
 }
 
 

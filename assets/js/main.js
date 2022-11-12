@@ -6,6 +6,9 @@ let fieldScreenParam = {
     height: 880
 }
 
+// Счётчик текущей фигуры
+let currentTetraminoIndex = 0;
+
 // Создаём общий "мешок" фигурок
 let mainBag = Array(7);
 (function createMainBag() {
@@ -30,15 +33,28 @@ function createInnerBag() {
     return innerBag;
 }
 
-// Счётчик текущей фигуры
-let currentShapeNumber = 0;
+// Holded фигура
+let holdedTetramino = {
+    // JSON.parse(JSON.stringify(this));
+    tetramino : undefined,
+    movesPassed : undefined
+}
+ 
 
 
 let blockSize = fieldScreenParam.width / 10;                                        // Ширина/высота кубика
 let outlineWidth = 4;                                                               // Ширина линии обводки
 let outlineGap = outlineWidth / 2;                                                  // Ширина промежутка линии обводки
+
+// Параметры игрового поля
 let fieldLeft = fieldScreenParam.width / 2 + outlineGap,                            // Левый край поля
     fieldRight = fieldScreenParam.width / 2 + fieldScreenParam.width + outlineGap;  // Правый край поля
+
+// Параметры HOLD-блока
+let holdBlockLeft = outlineGap,
+    holdBlockTop = blockSize * 0.8,
+    holdBlockHeight = 3 * blockSize,
+    holdBlockWidth = fieldScreenParam.width / 2;
 
 // Поиск канваса
 let canvas = document.getElementById("canvas");
@@ -49,59 +65,60 @@ let context = canvas.getContext('2d');  // Получаем контекст д�
 // Создаём экземпляр поля
 let field = new Field(context);
 // Создаём экземпляр фигурки
-let shape = new Shape(context);
+let tetramino = new Tetramino(context);
 
 // Передвинуть фигурку
-function moveShape(EO){
+function controlTetramino(EO){
     EO = EO || window.event;
     EO.preventDefault();
 
     // Получить текущие координаты и фигурку
     let currentValues = {
-        shape : shape.shape,
-        x: shape.x,
-        y: shape.y
+        tetramino : tetramino.tetramino,
+        x: tetramino.x,
+        y: tetramino.y
     }
     console.log(EO.key);
     // Проверяем доступность хода и изменяем текущие координаты
     if (EO.key === 'ArrowLeft') 
-        if (isNextMoveAvaible(field, shape, EO.key)) shape.move('moveLeft');
+        if (isNextMoveAvaible(field, tetramino, EO.key)) tetramino.move('moveLeft');
     if (EO.key === 'ArrowRight') 
-        if (isNextMoveAvaible(field, shape, EO.key)) shape.move('moveRight');
+        if (isNextMoveAvaible(field, tetramino, EO.key)) tetramino.move('moveRight');
     if (EO.key === 'ArrowDown') 
-        if (isNextMoveAvaible(field, shape, EO.key)) shape.move('moveDown');
-    if (EO.key === 'ArrowUp') shape.move('rotate');
-    if (EO.key === ' ') shape.move('hardDrop');
+        if (isNextMoveAvaible(field, tetramino, EO.key)) tetramino.move('moveDown');
+    if (EO.key === 'ArrowUp') tetramino.move('rotate');
+    if (EO.key === ' ') tetramino.hardDrop();
+    if (EO.key === 'Shift') tetramino.hold();
 
     
 
     // Обновляем новые координаты
-    field.updateCoordinates(shape);
+    field.updateCoordinates(tetramino);
 
     // Очищаем поле
     field.redraw();
     
     // Перерисовываем фигурку
-    shape.draw(field);
+    tetramino.draw(field);
 }
 
 // Проверить доступность следующего хода
-function isNextMoveAvaible(field, currentShape, nextMove) {
+function isNextMoveAvaible(field, currentTetramino, nextMove) {
     let posibleX = 0, posibleY = 0;
     
     if (nextMove === 'ArrowLeft') posibleX = -1;
     if (nextMove === 'ArrowRight') posibleX = 1;
     if (nextMove === 'ArrowDown') posibleY = 1;
     
-    for (let i = 0; i < currentShape.shape.length; i++){
-        for (let j = 0; j < currentShape.shape[i].length; j++){
-            if (currentShape.shape[i][j] > 0){
-                if (currentShape.x + j + posibleX < 0 || currentShape.x + j + posibleX > FIELD.width - 1) 
+    for (let i = 0; i < currentTetramino.shape.length; i++){
+        for (let j = 0; j < currentTetramino.shape[i].length; j++){
+            if (currentTetramino.shape[i][j] > 0){
+                if (currentTetramino.x + j + posibleX < 0 || currentTetramino.x + j + posibleX > FIELD.width - 1) 
                     return false;
-                if (currentShape.y + i + posibleY > field.grid.length - 1) 
+                if (currentTetramino.y + i + posibleY > field.grid.length - 1) 
                     return false;
-                if (field.grid[currentShape.y + i + posibleY][currentShape.x + j + posibleX] >= 1 && 
-                    field.grid[currentShape.y + i + posibleY][currentShape.x + j + posibleX] <= 7) 
+                if (field.grid[currentTetramino.y + i + posibleY][currentTetramino.x + j + posibleX] >= 1 && 
+                    field.grid[currentTetramino.y + i + posibleY][currentTetramino.x + j + posibleX] <= 7) 
                     return false;
             }
         }
@@ -115,13 +132,13 @@ function play(){
     field.reset();
 
     // Добавляем обработчик события нажатия на стрелочки
-    document.addEventListener('keydown', moveShape);
+    document.addEventListener('keydown', controlTetramino);
 
     // Генерируем фигурку
-    shape.spawnShape();
+    tetramino.spawnTetramino();
 
     // Обновляем массив поля
-    field.updateCoordinates(shape);
+    field.updateCoordinates(tetramino);
 
     animate();
 }
@@ -138,16 +155,16 @@ function animate(now = 0) {
         time.start = now; // Начать отсчёт сначала
 
         // Проверить доступность следющего смещения вниз
-        isNextMoveDownAvaible = isNextMoveAvaible(field, shape, 'ArrowDown');
+        isNextMoveDownAvaible = isNextMoveAvaible(field, tetramino, 'ArrowDown');
         
         if (isNextMoveDownAvaible){
-            shape.move("moveDown"); // Опустить фигурку на 1 блок
+            tetramino.move("moveDown"); // Опустить фигурку на 1 блок
         }
     }
     if (!isNextMoveDownAvaible){
-        if (!shape.isHardDropped){
+        if (!tetramino.isHardDropped){
             freezeTimeout = setTimeout(function () {
-                field.freeze(shape);
+                field.freeze(tetramino);
             }, 500);
         }
     }
@@ -159,8 +176,8 @@ function animate(now = 0) {
 
 function immitateProblem(){
     debugger;
-    shape.move('hardDrop');
-    shape.move('moveRight');
+    tetramino.move('hardDrop');
+    tetramino.move('moveRight');
     
 }
 

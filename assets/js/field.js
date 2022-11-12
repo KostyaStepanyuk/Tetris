@@ -118,20 +118,7 @@ class Field{
         );
     } 
 
-    updateCoordinates(currentShape) {
-        // Обнуляем все старые координаты
-        // if (currentShape.oldX !== undefined && currentShape.oldY !== undefined) {
-        //     for (let i = 0; i < currentShape.shape.length; i++){
-        //         for (let j = 0; j < currentShape.shape[i].length; j++){
-        //             if (currentShape.oldY === -1)
-        //                 currentShape.oldY = 0;
-        //             if (this.grid[currentShape.oldY + i] !== undefined) {
-        //                 if (this.grid[currentShape.oldY + i][currentShape.oldX + j] === 8)
-        //                     this.grid[currentShape.oldY + i][currentShape.oldX + j] = 0;
-        //             }
-        //         }
-        //     }
-        // }
+    updateCoordinates(currentTetramino) {
 
         for (let y = 0; y < FIELD.height; y++){
             for (let x = 0; x < FIELD.width; x++){
@@ -142,10 +129,10 @@ class Field{
         }
 
         // Обновляем новые координаты
-        for (let i = 0; i < currentShape.shape.length; i++){
-            for (let j = 0; j < currentShape.shape[i].length; j++){
-                if (currentShape.shape[i][j] > 0){
-                    this.grid[currentShape.y + i][currentShape.x + j] = 8;
+        for (let i = 0; i < currentTetramino.shape.length; i++){
+            for (let j = 0; j < currentTetramino.shape[i].length; j++){
+                if (currentTetramino.shape[i][j] > 0){
+                    this.grid[currentTetramino.y + i][currentTetramino.x + j] = 8;
                 }       
             }
         }
@@ -154,30 +141,32 @@ class Field{
         this.redraw();
         
         // Перерисовываем фигурку
-        shape.draw(this);
+        tetramino.draw(this);
     }
 
     drop() {
-        shape.move('moveDown');
+        tetramino.move('moveDown');
     }
 
-    freeze(currentShape) {
-        if (isNextMoveAvaible(field, shape, 'ArrowDown')) return;
+    freeze(currentTetramino) {
+        if (!holdedTetramino.tetramino === undefined) holdedTetramino.movesPassed++;
+
+        if (isNextMoveAvaible(field, tetramino, 'ArrowDown')) return;
 
         let colorID;
         for (let color in COLORS){
-            if (currentShape.color === COLORS[color]) colorID = color;
+            if (currentTetramino.color === COLORS[color]) colorID = color;
         }
 
         // Обнуляем все старые координаты
-        if (currentShape.oldX !== undefined && currentShape.oldY !== undefined) {
-            for (let y = 0; y < currentShape.shape.length; y++){
-                for (let x = 0; x < currentShape.shape[y].length; x++){
-                    if (currentShape.shape[y][x] !== 0) {
-                        if (currentShape.oldY === -1)
-                            currentShape.oldY = 0;
-                        if (this.grid[currentShape.oldY + y][currentShape.oldX + x] !== undefined)
-                            this.grid[currentShape.oldY + y][currentShape.oldX + x] = 0;
+        if (currentTetramino.oldX !== undefined && currentTetramino.oldY !== undefined) {
+            for (let y = 0; y < currentTetramino.shape.length; y++){
+                for (let x = 0; x < currentTetramino.shape[y].length; x++){
+                    if (currentTetramino.shape[y][x] !== 0) {
+                        if (currentTetramino.oldY === -1)
+                            currentTetramino.oldY = 0;
+                        if (this.grid[currentTetramino.oldY + y][currentTetramino.oldX + x] !== undefined)
+                            this.grid[currentTetramino.oldY + y][currentTetramino.oldX + x] = 0;
                     }
                 }
             }
@@ -186,10 +175,10 @@ class Field{
         
         
         // Обновляем новые координаты
-        for (let i = 0; i < currentShape.shape.length; i++){
-            for (let j = 0; j < currentShape.shape[i].length; j++){
-                if (currentShape.shape[i][j] > 0){
-                    this.grid[currentShape.y + i][currentShape.x + j] = Number(colorID);
+        for (let i = 0; i < currentTetramino.shape.length; i++){
+            for (let j = 0; j < currentTetramino.shape[i].length; j++){
+                if (currentTetramino.shape[i][j] > 0){
+                    this.grid[currentTetramino.y + i][currentTetramino.x + j] = Number(colorID);
                 }       
             }
         }
@@ -197,7 +186,11 @@ class Field{
         // Очищаем поле
         this.redraw();
         
-        shape.spawnShape();
+        tetramino.spawnTetramino();
+
+        
+        if (holdedTetramino.tetramino !== undefined) holdedTetramino.movesPassed++;
+        if (holdedTetramino.movesPassed > 0) tetramino.drawHoldedTetramino();
     }
 
     clearLines() {
@@ -213,7 +206,7 @@ class Field{
             }
         });
 
-        this.updateCoordinates(shape);
+        this.updateCoordinates(tetramino);
     }
 }
 

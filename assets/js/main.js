@@ -79,18 +79,48 @@ function controlTetramino(EO){
         y: tetramino.y
     }
     console.log(EO.key);
-    // Проверяем доступность хода и изменяем текущие координаты
-    if (EO.key === 'ArrowLeft') 
-        if (isNextMoveAvaible(field, tetramino, EO.key)) tetramino.move('moveLeft');
-    if (EO.key === 'ArrowRight') 
-        if (isNextMoveAvaible(field, tetramino, EO.key)) tetramino.move('moveRight');
-    if (EO.key === 'ArrowDown') 
-        if (isNextMoveAvaible(field, tetramino, EO.key)) tetramino.move('moveDown');
-    if (EO.key === 'ArrowUp') tetramino.move('rotate');
-    if (EO.key === ' ') tetramino.hardDrop();
-    if (EO.key === 'Shift') tetramino.hold();
 
-    
+    switch (EO.key) {
+        case 'ArrowUp':
+        case 'x':
+        case '1':
+        case '5':
+        case '9':
+            tetramino.rotate('clockwise');
+            break;
+        case ' ':
+        case '8':
+            tetramino.hardDrop();
+            break;
+        case 'Shift':
+        case 'c':
+        case '0':
+            tetramino.hold();
+            break;
+        case 'Control':
+        case 'z':
+        case '3':
+        case '7':
+            tetramino.rotate('counterclockwise');
+            break;
+        case 'Escape':
+        case 'F1':
+            pause();
+            break;
+        case 'ArrowLeft':
+        case '4':
+            if (isNextMoveAvaible(field, tetramino, EO.key)) tetramino.move('moveLeft');
+            break;
+        case 'ArrowRight':
+        case '6':
+            if (isNextMoveAvaible(field, tetramino, EO.key)) tetramino.move('moveRight');
+            break;
+        case 'ArrowDown':
+        case '2':
+            if (isNextMoveAvaible(field, tetramino, EO.key)) tetramino.move('moveDown');
+            break;
+            
+    }
 
     // Обновляем новые координаты
     field.updateCoordinates(tetramino);
@@ -173,18 +203,14 @@ function animate(now = 0) {
     requestAnimationFrame(animate);
 }
 
-
-function immitateProblem(){
-    debugger;
-    tetramino.move('hardDrop');
-    tetramino.move('moveRight');
-    
-}
-
-
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
       let j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
+}
+
+function immitateProblem(){
+    debugger;
+    
 }

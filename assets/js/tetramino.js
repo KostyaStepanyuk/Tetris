@@ -67,7 +67,7 @@ class Tetramino{
                 break;
         }
 
-        switch (holdedTetramino.tetramino.tetraminoShapeType){
+        switch (holdedTetramino.tetramino.shapeType){
             case 1:
                 startPositionTop = 1.5 * blockSize; // Сместить фигурку на 1.5 блока вверх, если ее высота - 1
                 break;
@@ -118,7 +118,7 @@ class Tetramino{
         if (holdedTetramino.tetramino === undefined) {
             // Закидываем текущее тетрамино в HOLD-блок
             holdedTetramino.tetramino = JSON.parse(JSON.stringify(this));
-            holdedTetramino.tetramino.shape = SHAPES[holdedTetramino.tetramino.tetraminoShapeType];
+            holdedTetramino.tetramino.shape = SHAPES[holdedTetramino.tetramino.shapeType];
             holdedTetramino.movesPassed = 0;
 
             // Отрисовываем его в HOLD-блоке
@@ -132,18 +132,18 @@ class Tetramino{
             if (holdedTetramino.movesPassed > 0) {
                 let tempTetraminoCopy = JSON.parse(JSON.stringify(this));
                 // Спавним следующее
-                this.x = holdedTetramino.tetramino.tetraminoShapeType === 4 ? 4 : 3;
-                this.y = holdedTetramino.tetramino.tetraminoShapeType === 1 ? -1 : 0;
+                this.x = holdedTetramino.tetramino.shapeType === 4 ? 4 : 3;
+                this.y = holdedTetramino.tetramino.shapeType === 1 ? -1 : 0;
 
                 this.oldX;
                 this.oldY;
 
-                this.shape = JSON.parse(JSON.stringify(SHAPES[holdedTetramino.tetramino.tetraminoShapeType]));
-                this.color = COLORS[holdedTetramino.tetramino.tetraminoShapeType];
+                this.shape = JSON.parse(JSON.stringify(SHAPES[holdedTetramino.tetramino.shapeType]));
+                this.color = COLORS[holdedTetramino.tetramino.shapeType];
 
                 // Обновляем текущее HOLDED тетрамино
                 holdedTetramino.tetramino = JSON.parse(JSON.stringify(tempTetraminoCopy));
-                holdedTetramino.tetramino.shape = SHAPES[holdedTetramino.tetramino.tetraminoShapeType];
+                holdedTetramino.tetramino.shape = SHAPES[holdedTetramino.tetramino.shapeType];
                 holdedTetramino.movesPassed = 0;
                 
                 // Отрисовываем его в HOLD-блоке
@@ -155,70 +155,161 @@ class Tetramino{
         
     }
 
-    checkPosition() {
-        if (this.x < 0) this.x = 0;
-        if (this.x + this.shape.length - 1 > FIELD.width - 1) 
-            this.x -= this.x + (this.shape.length - 1) - (FIELD.width - 1);
-        if (this.y === -1) this.y = 0;
-        if (this.y + this.shape.length > FIELD.height - 1) this.y = this.y - (this.y + (this.shape.length - 1) - (FIELD.height - 1));
+    checkWithSRS(tetromino, oldRotationState, newRotationState, rotationDirection) {
+        let tests;
+        if (tetromino.shapeType === 1) {
+            tests = SuperRotationSystem.I[oldRotationState + '>>' + newRotationState];
+            let correctRotate = this.runTestsForSRS(tests, tetromino, rotationDirection);
+            return correctRotate;
+        }
+        else {
+            tests = SuperRotationSystem.JLTSZ[oldRotationState + '>>' + newRotationState];
+            let correctRotate = this.runTestsForSRS(tests, tetromino, rotationDirection);
+            return correctRotate;
+        }
     }
 
-    rotate() {
-        let isRotateAvaible = true;
-        let tempTetramino = JSON.parse(JSON.stringify(this)); // Создаём временную копию фигурки
+    runTestsForSRS(tests, tetromino, rotationDirection){
+        // Запомнить старые координаты
+        let oldX = tetromino.x,
+            oldY = tetromino.y;
         
-        // Поворачиваем временную фигурку
-        for (let y = 0; y < tempTetramino.shape.length; ++y) {
-            for (let x = 0; x < y; ++x) {
-              [tempTetramino.shape[x][y], tempTetramino.shape[y][x]] = 
-              [tempTetramino.shape[y][x], tempTetramino.shape[x][y]];
+        for (let i = 1; i < 6; i++) {
+            // Присвоить новые координаты
+            tetromino.x += tests[i][0];
+            tetromino.y += tests[i][1];
+
+            // Проверить результаты
+            if (this.isNewPositionValid(tetromino)) 
+                return i;
+            else {
+                tetromino.x = oldX;
+                tetromino.y = oldY;
             }
         }
-        tempTetramino.shape.forEach(row => row.reverse());
-        
-        // Проверяем валидность временной фигурки
-        for (let y = 0; y < tempTetramino.shape.length; y++){
-            for (let x = 0; x < tempTetramino.shape[y].length; x++){
-                if (tempTetramino.shape[y][x] > 0){
-                    if (tempTetramino.x + x < 0) { // Блок фигурки левее поля
-                        if (tempTetramino.x === this.x) {
-                            this.x -= tempTetramino.x + x;
-                            //debugger;
-                        }
+        return 0;
+    }
+
+    rotateClockwise(shape) {
+        // Поворачиваем временную фигурку по часовой
+        for (let y = 0; y < shape.length; ++y) {
+            for (let x = 0; x < y; ++x) {
+                [shape[x][y], shape[y][x]] = 
+                [shape[y][x], shape[x][y]];
+            }
+        }
+        shape.forEach(row => row.reverse());
+        return shape;
+    }
+
+    rotateCounterclockwise(shape) {
+        // Поворачиваем временную фигурку против часовой
+        shape.forEach(row => row.reverse());
+        for (let y = 0; y < shape.length; ++y) {
+            for (let x = 0; x < y; ++x) {
+                [shape[x][y], shape[y][x]] = 
+                [shape[y][x], shape[x][y]];
+            }
+        }
+        return shape;
+    }
+
+    isNewPositionValid(tetramino) {
+        for (let y = 0; y < tetramino.shape.length; y++){
+            for (let x = 0; x < tetramino.shape[y].length; x++){
+                if (tetramino.shape[y][x] > 0){
+                    if (tetramino.x + x < 0) { // Блок фигурки левее поля
+                        return false;
                     }
-                    if (tempTetramino.x + x > FIELD.width - 1) { // Блок фигурки правее поля
-                        if (tempTetramino.x === this.x) {
-                            this.x -= tempTetramino.x + x - (FIELD.width - 1);
-                            if (tempTetramino.tetraminoShapeType === 1){
-                                this.x--;    
-                            }
-                            //debugger;
-                        }
+                    if (tetramino.x + x > FIELD.width - 1) { // Блок фигурки правее поля
+                        return false;
                     }
-                    if (tempTetramino.y + y < 0) { // Блок фигурки выше поля
-                        if (tempTetramino.y === this.y) {
-                            this.y -= tempTetramino.y + y;
-                            //debugger;
-                        }
+                    if (tetramino.y + y < 0) { // Блок фигурки выше поля
+                        return false;
                     }
-                    if (field.grid[tempTetramino.y + y] !== undefined) {
-                        if (field.grid[tempTetramino.y + y][tempTetramino.x + x] !== 0 && field.grid[tempTetramino.y + y][tempTetramino.x + x] !== 8) {
-                            isRotateAvaible = false;
+                    if (field.grid[tetramino.y + y] !== undefined) { // Блок фигурки сталкивается с блоком другой размещенной фигурки
+                        if (field.grid[tetramino.y + y][tetramino.x + x] !== 0 && field.grid[tetramino.y + y][tetramino.x + x] !== 8) {
+                            return false;
                         }
                     }
                 }       
             }
         }
+        return true;
+    }
+
+    rotate(direction) {
+        let isRotateAvaible = true; // Возможен ли поворот фигурки
+        let tempTetramino = JSON.parse(JSON.stringify(this)); // Создаём временную копию фигурки
+        
+        // Поворачиваем временную фигурку
+        if (direction === 'clockwise') {
+            tempTetramino.shape = this.rotateClockwise(tempTetramino.shape);
+            tempTetramino.rotationState = ++tempTetramino.rotationState % 4;
+        }
+        else{
+            tempTetramino.shape = this.rotateCounterclockwise(tempTetramino.shape);
+            if (tempTetramino.rotationState === 0) tempTetramino.rotationState = 4;
+                tempTetramino.rotationState = --tempTetramino.rotationState % 4;
+        }
+
+        // Устанавливаем позицию для основной фигурки
+        let testNumber = this.checkWithSRS(tempTetramino, this.rotationState, tempTetramino.rotationState, direction);
+        let correctCoordinates;
+
+        if (this.shapeType === 1) {
+            correctCoordinates = SuperRotationSystem.I[this.rotationState + '>>' + tempTetramino.rotationState][testNumber];
+        }
+        else {
+            correctCoordinates = SuperRotationSystem.JLTSZ[this.rotationState + '>>' + tempTetramino.rotationState][testNumber];
+        }
+
+        this.x += correctCoordinates[0];
+        this.y += correctCoordinates[1];
+
+
+
+        // Проверяем валидность временной фигурки
+        // for (let y = 0; y < tempTetramino.shape.length; y++){
+        //     for (let x = 0; x < tempTetramino.shape[y].length; x++){
+        //         if (tempTetramino.shape[y][x] > 0){
+        //             if (tempTetramino.x + x < 0) { // Блок фигурки левее поля
+        //                 if (tempTetramino.x === this.x) {
+        //                    console.log(''); 
+        //                 }
+        //                 this.checkWithSRS(tempTetramino, this.rotationState, tempTetramino.rotationState, direction);
+        //             }
+        //             if (tempTetramino.x + x > FIELD.width - 1) { // Блок фигурки правее поля
+        //                 if (tempTetramino.x === this.x) {
+                            
+        //                 }
+        //                 this.checkWithSRS(tempTetramino, this.rotationState, tempTetramino.rotationState, direction);
+        //             }
+        //             if (tempTetramino.y + y < 0) { // Блок фигурки выше поля
+        //                 if (tempTetramino.y === this.y) {
+        //                     this.y -= tempTetramino.y + y;
+        //                     //debugger;
+        //                 }
+        //             }
+        //             if (field.grid[tempTetramino.y + y] !== undefined) { // Блок фигурки сталкивается с блоком другой размещенной фигурки
+        //                 if (field.grid[tempTetramino.y + y][tempTetramino.x + x] !== 0 && field.grid[tempTetramino.y + y][tempTetramino.x + x] !== 8) {
+        //                     isRotateAvaible = false;
+        //                 }
+        //             }
+        //         }       
+        //     }
+        // }
 
         if (isRotateAvaible) {
-            // Поворачиваем фигурку
-            for (let y = 0; y < this.shape.length; ++y) {
-                for (let x = 0; x < y; ++x) {
-                [this.shape[x][y], this.shape[y][x]] = 
-                [this.shape[y][x], this.shape[x][y]];
-                }
+            if (direction === 'clockwise') {
+                this.shape = this.rotateClockwise(this.shape);
+                this.rotationState = ++this.rotationState % 4;
             }
-            this.shape.forEach(row => row.reverse());
+            else {
+                this.shape = this.rotateCounterclockwise(this.shape);
+                if (this.rotationState === 0) this.rotationState = 4;
+                this.rotationState = --this.rotationState % 4;
+            }
         }
 
         field.updateCoordinates(this);
@@ -227,7 +318,7 @@ class Tetramino{
     spawnTetramino(){
         this.isHardDropped = false;
         // Выбираем следующую фигурку
-        this.tetraminoShapeType = mainBag[0][currentTetraminoIndex];
+        this.shapeType = mainBag[0][currentTetraminoIndex];
         currentTetraminoIndex++;
 
         if (currentTetraminoIndex > 6){
@@ -242,17 +333,19 @@ class Tetramino{
         }
 
         // Присваем начальные координаты фигурке (Если это кубик, то x = 4)
-        this.x = this.tetraminoShapeType === 4 ? 4 : 3;
-        this.y = this.tetraminoShapeType === 1 ? -1 : 0;
+        this.x = this.shapeType === 4 ? 4 : 3;
+        this.y = this.shapeType === 1 ? -1 : 0;
 
         // Создаём переменные для хранения предыдущих координат
         this.oldX;
         this.oldY;
 
         // Присваеваем фигурке форму
-        this.shape = JSON.parse(JSON.stringify(SHAPES[this.tetraminoShapeType]));
+        this.shape = JSON.parse(JSON.stringify(SHAPES[this.shapeType]));
         // Присваеваем фигурке цвет
-        this.color = COLORS[this.tetraminoShapeType];
+        this.color = COLORS[this.shapeType];
+        // Присваеваем текущее состояние
+        this.rotationState = 0;
 
         field.updateCoordinates(this);
     }

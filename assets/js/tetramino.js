@@ -177,7 +177,7 @@ class Tetramino{
         for (let i = 1; i < 6; i++) {
             // Присвоить новые координаты
             tetromino.x += tests[i][0];
-            tetromino.y += tests[i][1];
+            tetromino.y -= tests[i][1];
 
             // Проверить результаты
             if (this.isNewPositionValid(tetromino)) 
@@ -257,48 +257,20 @@ class Tetramino{
         let testNumber = this.checkWithSRS(tempTetramino, this.rotationState, tempTetramino.rotationState, direction);
         let correctCoordinates;
 
-        if (this.shapeType === 1) {
-            correctCoordinates = SuperRotationSystem.I[this.rotationState + '>>' + tempTetramino.rotationState][testNumber];
+        if (testNumber !== 0) {
+            if (this.shapeType === 1) {
+                correctCoordinates = SuperRotationSystem.I[this.rotationState + '>>' + tempTetramino.rotationState][testNumber];
+            }
+            else {
+                correctCoordinates = SuperRotationSystem.JLTSZ[this.rotationState + '>>' + tempTetramino.rotationState][testNumber];
+            }
         }
         else {
-            correctCoordinates = SuperRotationSystem.JLTSZ[this.rotationState + '>>' + tempTetramino.rotationState][testNumber];
+            return;
         }
 
         this.x += correctCoordinates[0];
-        this.y += correctCoordinates[1];
-
-
-
-        // Проверяем валидность временной фигурки
-        // for (let y = 0; y < tempTetramino.shape.length; y++){
-        //     for (let x = 0; x < tempTetramino.shape[y].length; x++){
-        //         if (tempTetramino.shape[y][x] > 0){
-        //             if (tempTetramino.x + x < 0) { // Блок фигурки левее поля
-        //                 if (tempTetramino.x === this.x) {
-        //                    console.log(''); 
-        //                 }
-        //                 this.checkWithSRS(tempTetramino, this.rotationState, tempTetramino.rotationState, direction);
-        //             }
-        //             if (tempTetramino.x + x > FIELD.width - 1) { // Блок фигурки правее поля
-        //                 if (tempTetramino.x === this.x) {
-                            
-        //                 }
-        //                 this.checkWithSRS(tempTetramino, this.rotationState, tempTetramino.rotationState, direction);
-        //             }
-        //             if (tempTetramino.y + y < 0) { // Блок фигурки выше поля
-        //                 if (tempTetramino.y === this.y) {
-        //                     this.y -= tempTetramino.y + y;
-        //                     //debugger;
-        //                 }
-        //             }
-        //             if (field.grid[tempTetramino.y + y] !== undefined) { // Блок фигурки сталкивается с блоком другой размещенной фигурки
-        //                 if (field.grid[tempTetramino.y + y][tempTetramino.x + x] !== 0 && field.grid[tempTetramino.y + y][tempTetramino.x + x] !== 8) {
-        //                     isRotateAvaible = false;
-        //                 }
-        //             }
-        //         }       
-        //     }
-        // }
+        this.y -= correctCoordinates[1];
 
         if (isRotateAvaible) {
             if (direction === 'clockwise') {

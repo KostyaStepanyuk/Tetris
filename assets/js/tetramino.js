@@ -25,8 +25,6 @@ class Tetramino{
                     this.context.strokeStyle = "rgb(200, 200, 200)";
                     this.context.strokeRect(fieldLeft + j * blockSize, i * blockSize, 
                                             blockSize, blockSize);
-                    // this.context.strokeRect(fieldLeft + j * blockSize + (blockSize / 4), i * blockSize + (blockSize / 4), 
-                    //                         blockSize - (blockSize / 4) * 2, blockSize - (blockSize / 4) * 2);
                 }
             }
         }
@@ -84,10 +82,83 @@ class Tetramino{
                     this.context.fillRect(holdBlockLeft + (holdBlockWidth / 2) - startPositionLeft + j * blockSize, 
                                           holdBlockTop + (holdBlockHeight / 2) - startPositionTop + i * blockSize, 
                                           blockSize, blockSize);
-                    // this.context.lineWidth = 3;
-                    // this.context.strokeStyle = "rgb(200, 200, 200)";
-                    // this.context.strokeRect(holdBlockLeft + j * blockSize, i * blockSize, 
-                    //                         blockSize, blockSize);
+                    this.context.lineWidth = 3;
+                    this.context.strokeStyle = "rgb(200, 200, 200)";
+                    this.context.strokeRect(holdBlockLeft + (holdBlockWidth / 2) - startPositionLeft + j * blockSize, 
+                                            holdBlockTop + (holdBlockHeight / 2) - startPositionTop + i * blockSize, 
+                                            blockSize, blockSize);
+                }
+            }
+        }
+    }
+
+    drawNextTetraminos() {
+        // Зарисовываем область NEXT фигурок
+        this.context.fillStyle = 'black';
+        this.context.beginPath();
+        this.context.moveTo(nextBlockLeft, nextBlockTop);
+        this.context.lineTo(nextBlockLeft + nextBlockWidth, nextBlockTop);
+        this.context.lineTo(nextBlockLeft + nextBlockWidth, nextBlockTop + nextBlockHeight - 20);
+        this.context.lineTo(nextBlockLeft + nextBlockWidth - 20, nextBlockTop + nextBlockHeight);
+        this.context.lineTo(nextBlockLeft, nextBlockTop + nextBlockHeight);
+        this.context.closePath();
+        this.context.fill();
+
+        let nextBlockHeightForOneTetramino = nextBlockHeight / 5;
+
+        for (let i = 0; i < 5; i++) {
+
+            let nextTetraminoShapeType;
+
+            if (currentTetraminoIndex + i + 1 > 6) {
+                nextTetraminoShapeType = mainBag[1][currentTetraminoIndex + i + 1 - 6];
+            }
+            else {
+                nextTetraminoShapeType = mainBag[0][currentTetraminoIndex + i + 1];
+            }
+
+            let nextTetraminoShape = SHAPES[nextTetraminoShapeType];
+            
+            let drawingColor = COLORS[nextTetraminoShapeType]; 
+
+            let startPositionTop, // Верхний край фигурки
+                startPositionLeft; // Левый край фигурки
+
+            switch (nextTetraminoShape.length){
+                case 2:
+                    startPositionLeft = 1 * blockSize; // Сместить фигурку на 1 блок левее центра, если её ширина - 2
+                    break;
+                case 3:
+                    startPositionLeft = 1.5 * blockSize; // Сместить фигурку на 1.5 блока левее центра, если её ширина - 3
+                    break;
+                case 4:
+                    startPositionLeft = 2 * blockSize; // Сместить фигурку на 2 блок левее центра, если её ширина - 4
+                    break;
+            }
+    
+            switch (nextTetraminoShape){
+                case 1:
+                    startPositionTop = 1.5 * blockSize; // Сместить фигурку на 1.5 блока вверх, если ее высота - 1
+                    break;
+                default:
+                    startPositionTop = 1 * blockSize; // Сместить фигурку на 1 блок вверх, если ее высота - 2
+                    break;
+            }
+
+            this.context.fillStyle = drawingColor;
+
+            for (let x = 0; x < nextTetraminoShape.length; x++){
+                for (let y = 0; y < nextTetraminoShape[x].length; y++){
+                    if (nextTetraminoShape[x][y] > 0){
+                        this.context.fillRect(nextBlockLeft + (nextBlockWidth / 2) - startPositionLeft + (y * blockSize), 
+                                              nextBlockTop + (nextBlockHeightForOneTetramino * i) + (nextBlockHeightForOneTetramino / 2) - startPositionTop + (x * blockSize), 
+                                              blockSize, blockSize);
+                        this.context.lineWidth = 3;
+                        this.context.strokeStyle = "rgb(200, 200, 200)";
+                        this.context.strokeRect(nextBlockLeft + (nextBlockWidth / 2) - startPositionLeft + (y * blockSize), 
+                                                nextBlockTop + (nextBlockHeightForOneTetramino * i) + (nextBlockHeightForOneTetramino / 2) - startPositionTop + (x * blockSize), 
+                                                blockSize, blockSize);
+                    }
                 }
             }
         }

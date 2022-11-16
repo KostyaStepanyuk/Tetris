@@ -185,12 +185,16 @@ class Field{
 
         // Очищаем поле
         this.redraw();
+
+        tetramino.drawNextTetraminos();
         
         tetramino.spawnTetramino();
 
         
         if (holdedTetramino.tetramino !== undefined) holdedTetramino.movesPassed++;
         if (holdedTetramino.movesPassed > 0) tetramino.drawHoldedTetramino();
+        
+        
     }
 
     clearLines() {

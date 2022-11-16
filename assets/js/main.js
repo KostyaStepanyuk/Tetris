@@ -35,7 +35,6 @@ function createInnerBag() {
 
 // Holded фигура
 let holdedTetramino = {
-    // JSON.parse(JSON.stringify(this));
     tetramino : undefined,
     movesPassed : undefined
 }
@@ -56,16 +55,21 @@ let holdBlockLeft = outlineGap,
     holdBlockHeight = 3 * blockSize,
     holdBlockWidth = fieldScreenParam.width / 2;
 
+// Параметры NEXT-блока
+let nextBlockLeft = fieldRight + outlineGap * 3,
+    nextBlockTop = blockSize * 0.8 - outlineGap,
+    nextBlockHeight = 15 * blockSize,
+    nextBlockWidth = fieldScreenParam.width / 2 - outlineWidth * 3;
+
 // Поиск канваса
 let canvas = document.getElementById("canvas");
 canvas.width = fieldScreenParam.width * 2;    // Устанавливаем ширину канваса
 canvas.height = fieldScreenParam.height;      // Устанавливаем высоту канваса
 let context = canvas.getContext('2d');  // Получаем контекст для рисования
 
-// Создаём экземпляр поля
-let field = new Field(context);
-// Создаём экземпляр фигурки
-let tetramino = new Tetramino(context);
+
+let field = new Field(context); // Создаём экземпляр поля
+let tetramino = new Tetramino(context); // Создаём экземпляр фигурки
 
 // Передвинуть фигурку
 function controlTetramino(EO){
@@ -164,6 +168,8 @@ function play(){
     // Добавляем обработчик события нажатия на стрелочки
     document.addEventListener('keydown', controlTetramino);
 
+    tetramino.drawNextTetraminos();
+
     // Генерируем фигурку
     tetramino.spawnTetramino();
 
@@ -173,8 +179,8 @@ function play(){
     animate();
 }
 
+// Анимировать кадр
 const time = { start: 0, elapsed: 0, level: 1000 };
-
 function animate(now = 0) {
     let freezeTimeout = undefined;
     time.elapsed = now - time.start; // Истёкшее время
@@ -203,6 +209,7 @@ function animate(now = 0) {
     requestAnimationFrame(animate);
 }
 
+// Перемешать массив
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
       let j = Math.floor(Math.random() * (i + 1));
@@ -210,7 +217,8 @@ function shuffle(array) {
     }
 }
 
+// Сымитировать проблемму
 function immitateProblem(){
-    debugger;
+    tetramino.drawNextTetraminos();
     
 }

@@ -15,10 +15,17 @@ class Tetramino{
         for (let i = 0; i < field.grid.length; i++){
             for (let j = 0; j < field.grid[i].length; j++){
                 if (field.grid[i][j] > 0){
-                    if (field.grid[i][j] === 8) 
-                        this.context.fillStyle = this.color;
-                    else 
-                        this.context.fillStyle = COLORS[field.grid[i][j]];
+                    switch (field.grid[i][j]) {
+                        case 8:
+                            this.context.fillStyle = this.color;
+                            break;
+                        case 9:
+                            this.context.fillStyle = "rgb(100, 100, 100)";
+                            break;
+                        default:
+                            this.context.fillStyle = COLORS[field.grid[i][j]];
+                            break;
+                    }
                     this.context.fillRect(fieldLeft + j * blockSize, i * blockSize, 
                                           blockSize, blockSize);
                     this.context.lineWidth = 3;
@@ -111,7 +118,7 @@ class Tetramino{
             let nextTetraminoShapeType;
 
             if (currentTetraminoIndex + i + 1 > 6) {
-                nextTetraminoShapeType = mainBag[1][currentTetraminoIndex + i + 1 - 6];
+                nextTetraminoShapeType = mainBag[1][currentTetraminoIndex + i + 1 - 7];
             }
             else {
                 nextTetraminoShapeType = mainBag[0][currentTetraminoIndex + i + 1];
@@ -223,7 +230,7 @@ class Tetramino{
                 field.updateCoordinates(this);
             }
         }
-        
+        tetramino.drawNextTetraminos();
     }
 
     checkWithSRS(tetromino, oldRotationState, newRotationState, rotationDirection) {

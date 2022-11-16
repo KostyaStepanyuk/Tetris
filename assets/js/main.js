@@ -183,7 +183,9 @@ function play(){
 const time = { start: 0, elapsed: 0, level: 1000 };
 function animate(now = 0) {
     let freezeTimeout = undefined;
+
     time.elapsed = now - time.start; // Истёкшее время
+
     let isNextMoveDownAvaible = true;
     
     // Опускаем фигурку каждую секунду на блок вниз

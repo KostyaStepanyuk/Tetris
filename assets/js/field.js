@@ -122,18 +122,26 @@ class Field{
 
         for (let y = 0; y < FIELD.height; y++){
             for (let x = 0; x < FIELD.width; x++){
-                if (this.grid[y][x] === 8) {
+                if (this.grid[y][x] === 8 || this.grid[y][x] === 9) {
                     this.grid[y][x] = 0;
                 }
             }
+        }
+
+        // Создаём аватар тетрамино
+        let tetraminoAvatar = JSON.parse(JSON.stringify(currentTetramino));
+        for (;;){
+            if (isNextMoveAvaible(field, tetraminoAvatar, 'ArrowDown')) tetraminoAvatar.y += 1;
+            else break;
         }
 
         // Обновляем новые координаты
         for (let i = 0; i < currentTetramino.shape.length; i++){
             for (let j = 0; j < currentTetramino.shape[i].length; j++){
                 if (currentTetramino.shape[i][j] > 0){
+                    this.grid[tetraminoAvatar.y + i][tetraminoAvatar.x + j] = 9;
                     this.grid[currentTetramino.y + i][currentTetramino.x + j] = 8;
-                }       
+                }
             }
         }
 
@@ -201,7 +209,7 @@ class Field{
         let lines = 0;
 
         this.grid.forEach((row, index) => {
-            if (row.every(element => element !== 0 && element !== 8)) {
+            if (row.every(element => element !== 0 && element !== 8 && element !== 9)) {
                 lines++;
 
                 this.grid.splice(index, 1);

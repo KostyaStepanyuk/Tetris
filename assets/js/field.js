@@ -3,6 +3,7 @@
 class Field{
     constructor(context) {
         this.context = context;
+        this.score = 0;
         this.drawField();
         this.drawHoldBlock();
         this.drawNextBlock();
@@ -194,15 +195,18 @@ class Field{
         // Очищаем поле
         this.redraw();
 
+        // Обновляем NEXT-блок
         tetramino.drawNextTetraminos();
         
+        // Генерируем новое тетрамино
         tetramino.spawnTetramino();
 
-        
+        // Обновляем информацию о HOLDED-тетрамино
         if (holdedTetramino.tetramino !== undefined) holdedTetramino.movesPassed++;
         if (holdedTetramino.movesPassed > 0) tetramino.drawHoldedTetramino();
-        
-        
+
+        // Обновляем счёт
+        this.updateScore(tetramino);
     }
 
     clearLines() {
@@ -219,6 +223,29 @@ class Field{
         });
 
         this.updateCoordinates(tetramino);
+
+        // Обновляем счёт
+        this.updateScore(lines, tetramino);
+    }
+
+    updateScore(numberOfClearedLines = 0, tetramino) {
+        switch (numberOfClearedLines) {
+            case 1:
+                this.score += 100;
+                break;
+            case 2:
+                this.score += 300;
+                break;
+            case 3:
+                this.score += 500;
+                break;
+            case 4:
+                this.score += 800;
+                break;
+        }
+
+        // Обновляем счётчик
+        document.querySelector('#score-counter').innerHTML = this.score;
     }
 }
 

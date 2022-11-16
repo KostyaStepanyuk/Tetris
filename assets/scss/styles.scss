@@ -5,5 +5,13 @@
 }
 
 body{
-   // background: rgb(98, 98, 98);
+    background: black;
+}
+
+.score{
+    background: red;
+    text-align: center;
+    #score-counter{
+        color: white;
+    }
 }

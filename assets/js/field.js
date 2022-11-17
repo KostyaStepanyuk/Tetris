@@ -206,7 +206,7 @@ class Field{
         if (holdedTetramino.movesPassed > 0) tetramino.drawHoldedTetramino();
 
         // Обновляем счёт
-        this.updateScore(tetramino);
+        this.score += 26;
     }
 
     clearLines() {

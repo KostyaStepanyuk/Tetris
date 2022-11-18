@@ -4,19 +4,94 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/scss/styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet"/>
     <title>Tetris</title>
 </head>
 <body>
-    <div class="game-block" id="game-block">
-        <canvas id='canvas'>Обновите браузер</canvas>
-    </div>
-    <div class="score">
-        <span id = "score-counter">45,076</span>
+
+    <div class="container">
+        <div class="settings">
+            <div class="title">
+                Settings
+            </div>
+            <div class="background-music">
+                <div class="background-music-title">Background music volume: </div>
+                <div class="bacground-music-controller">
+                    <input type="range" name="" id="">
+                </div>
+            </div>
+
+            <div class="sound-effects">
+                <div class="background-music-title">Sound effects volume: </div>
+                <div class="bacground-music-controller">
+                    <input type="range" name="" id="">
+                </div>
+            </div>
+
+            <div class="fullscreen">
+                <div class="fullscreen-title">fullscreen</div>
+                <div class="fullscreen-checkbox">
+                    <input type="checkbox" name="" id="">
+                </div>
+            </div>
+        </div>
+    
+        <div class="menu">
+            <div class="logo">
+                <img src="../images/logo.png" alt="TETRIS">
+            </div>
+
+            <div class="button-play">
+                START
+            </div>
+
+            <div class="button-settings">
+                SETTINGS
+            </div>
+
+            <div class="fish">
+                <video src="../assets/video/fish.webm" autoplay></video>
+            </div>
+        </div>
+    
+        <div class="game">
+            <div class="game-block" id="game-block">
+                <canvas id='canvas'>Обновите браузер</canvas>
+            </div>
+            <div class="score">
+                <span id = "score-counter">45,076</span>
+            </div>
+        </div>
     </div>
 
     <button onclick="play()">Start</button>
     <button onclick="immitateProblem()">Problem</button>
+
+
+
+
+
+    <!-- BACKGROUND MUSIC -->
+    <audio id = "background-music" preload loop volume = "0.1">
+        <source src="../assets/sounds/background theme.mp3"
+            type="audio/ogg; codecs=vorbis">
+    </audio>
+    <!-- SOUND EFFECTS MUSIC -->
+    <audio id = "clear-1-line-music">
+        <source src="../assets/sounds/1 line.mp3" type="audio/ogg; codecs=vorbis">
+    </audio>
+    <audio id = "clear-2-lines-music">
+        <source src="../assets/sounds/2 lines.mp3" type="audio/ogg; codecs=vorbis">
+    </audio>
+    <audio id = "clear-3-lines-music">
+        <source src="../assets/sounds/3 lines.mp3" type="audio/ogg; codecs=vorbis">
+    </audio>
+    <audio id = "clear-4-lines-music">
+        <source src="../assets/sounds/4 lines.mp3" type="audio/ogg; codecs=vorbis">
+    </audio>
+
+    
     
     <script src="../assets/js/tetramino.js"></script>
     <script src="../assets/js/field.js"></script>

@@ -226,6 +226,8 @@ class Field{
 
         // Обновляем счёт
         this.updateScore(lines, tetramino);
+
+        clearLinesSound(lines);
     }
 
     updateScore(numberOfClearedLines = 0, tetramino) {

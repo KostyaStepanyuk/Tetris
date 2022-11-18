@@ -71,6 +71,8 @@ let context = canvas.getContext('2d');  // Получаем контекст д�
 let field = new Field(context); // Создаём экземпляр поля
 let tetramino = new Tetramino(context); // Создаём экземпляр фигурки
 
+let backgroundMusic = document.querySelector("#background-music"); // Фоновая музыка
+
 // Передвинуть фигурку
 function controlTetramino(EO){
     EO = EO || window.event;
@@ -176,7 +178,12 @@ function play(){
     // Обновляем массив поля
     field.updateCoordinates(tetramino);
 
+    backgroundMusic.volume = 0.1;
+    backgroundMusic.play();
+
     animate();
+
+
 }
 
 // Анимировать кадр
@@ -211,6 +218,29 @@ function animate(now = 0) {
     requestAnimationFrame(animate);
 }
 
+function clearLinesSound(lines) {
+    let clearLinesMusicElement;
+    switch (lines) {
+        case 1:
+            clearLinesMusicElement = document.querySelector("#clear-1-line-music");
+            clearLinesMusicElement.play();
+            break;
+        case 2:
+            clearLinesMusicElement = document.querySelector("#clear-2-lines-music");
+            clearLinesMusicElement.play();
+            break;
+        case 3:
+            clearLinesMusicElement = document.querySelector("#clear-3-lines-music");
+            clearLinesMusicElement.play();
+            break;
+        case 4:
+            clearLinesMusicElement = document.querySelector("#clear-4-lines-music");
+            clearLinesMusicElement.play();
+            break;
+    }
+    
+}
+
 // Перемешать массив
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -221,6 +251,6 @@ function shuffle(array) {
 
 // Сымитировать проблемму
 function immitateProblem(){
-    tetramino.drawNextTetraminos();
-    
+    clearLinesMusicSourceElement.src = "../assets/sounds/4 lines.mp3";
+    clearLinesMusicElement.play();
 }

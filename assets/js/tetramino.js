@@ -382,6 +382,8 @@ class Tetramino{
             currentTetraminoIndex = 0;
         }
 
+        
+
         // Присваем начальные координаты фигурке (Если это кубик, то x = 4)
         this.x = this.shapeType === 4 ? 4 : 3;
         this.y = this.shapeType === 1 ? -1 : 0;
@@ -396,6 +398,17 @@ class Tetramino{
         this.color = COLORS[this.shapeType];
         // Присваеваем текущее состояние
         this.rotationState = 0;
+
+        for (let y = 0; y < this.shape.length; y++){
+            for (let x = 0; x < this.shape[y].length; x++){
+                if (this.shape[y][x] > 0){
+                    if (field.grid[this.y + y][this.x + x] !== 0 && field.grid[this.y + y][this.x + x] !== 8){
+                        gameOver();
+                        return;
+                    }
+                }
+            }
+        }
 
         field.updateCoordinates(this);
     }

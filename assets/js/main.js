@@ -7,7 +7,9 @@ let fieldScreenParam = {
 }
 
 // Счётчик текущей фигуры
-let currentTetraminoIndex = 0;
+let currentTetraminoIndex = 0,
+    isGameOver = false,
+    isPaused = false;
 
 // Создаём общий "мешок" фигурок
 let mainBag = Array(7);
@@ -38,8 +40,6 @@ let holdedTetramino = {
     tetramino : undefined,
     movesPassed : undefined
 }
- 
-
 
 let blockSize = fieldScreenParam.width / 10;                                        // Ширина/высота кубика
 let outlineWidth = 4;                                                               // Ширина линии обводки
@@ -164,6 +164,7 @@ function isNextMoveAvaible(field, currentTetramino, nextMove) {
 
 // Начать игру
 function play(){
+    isGameOver = false;
     // Обнуляем поле
     field.reset();
 
@@ -182,13 +183,14 @@ function play(){
     backgroundMusic.play();
 
     animate();
-
-
 }
 
 // Анимировать кадр
 const time = { start: 0, elapsed: 0, level: 1000 };
 function animate(now = 0) {
+    if (isPaused) {
+        return;
+    }
     let freezeTimeout = undefined;
 
     time.elapsed = now - time.start; // Истёкшее время
@@ -215,7 +217,17 @@ function animate(now = 0) {
     }
     // Очищаем линии
     field.clearLines();
-    requestAnimationFrame(animate);
+    if (!isGameOver){
+        requestAnimationFrame(animate);
+    }
+    else {
+        document.removeEventListener('keydown', controlTetramino);
+        context.fillStyle = "white";
+        context.lineWidth = 100;
+        context.font = "bold 30px 'Press Start 2P'";
+        context.fillText("GAME OVER", fieldLeft + fieldScreenParam.width / 2 - 130, fieldScreenParam.height / 2);
+        backgroundMusic.pause();
+    }
 }
 
 function clearLinesSound(lines) {
@@ -223,18 +235,22 @@ function clearLinesSound(lines) {
     switch (lines) {
         case 1:
             clearLinesMusicElement = document.querySelector("#clear-1-line-music");
+            clearLinesMusicElement.volume = 0.3;
             clearLinesMusicElement.play();
             break;
         case 2:
             clearLinesMusicElement = document.querySelector("#clear-2-lines-music");
+            clearLinesMusicElement.volume = 0.3;
             clearLinesMusicElement.play();
             break;
         case 3:
             clearLinesMusicElement = document.querySelector("#clear-3-lines-music");
+            clearLinesMusicElement.volume = 0.3;
             clearLinesMusicElement.play();
             break;
         case 4:
             clearLinesMusicElement = document.querySelector("#clear-4-lines-music");
+            clearLinesMusicElement.volume = 0.3;
             clearLinesMusicElement.play();
             break;
     }
@@ -249,8 +265,48 @@ function shuffle(array) {
     }
 }
 
-// Сымитировать проблемму
-function immitateProblem(){
-    clearLinesMusicSourceElement.src = "../assets/sounds/4 lines.mp3";
-    clearLinesMusicElement.play();
+
+let containerBlock = document.querySelector('.container');
+let settingsBlock = document.querySelector('#settingsBlock');
+let menuBlock = document.querySelector('#menuBlock');
+let gameBlock = document.querySelector('#gameBlock');
+let currentActiveBlock;
+
+function showGame(){
+    if (currentActiveBlock === "menu"){
+        isPaused = false;
+        requestAnimationFrame(animate);
+        backgroundMusic.play();
+    }
+    gameBlock.style.display = "block";
+    gameBlock.scrollIntoView({behavior: "smooth"});
+    currentActiveBlock = "game";
+}
+
+function showMenu(){
+    if (currentActiveBlock === "game") {
+        isPaused = true;
+        backgroundMusic.pause();
+    }
+    menuBlock.scrollIntoView({behavior: "smooth"});
+    currentActiveBlock = "menu";
+}
+
+function showSettings(){
+    settingsBlock.style.display = "flex";
+    settingsBlock.scrollIntoView({behavior: "smooth"});
+    currentActiveBlock = "settings";
+}
+
+function saveRecords(){
+    let record = {
+        date: new Date(),
+        player: 123
+    };
+}
+
+function gameOver(){
+    isGameOver = true;
+    // Текст шапки
+    
 }

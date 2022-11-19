@@ -64,8 +64,8 @@ class Field{
         context.beginPath();
         context.fillStyle = "black";
         context.lineWidth = 100;
-        context.font = "bold 32px sans-serif";
-        context.fillText("NEXT", fieldRight + outlineGap * 2, outlineGap + (32 * 0.75));
+        context.font = "bold 20px 'Press Start 2P'";
+        context.fillText("NEXT", fieldRight + outlineGap * 4, outlineGap + (32 * 0.75));
         context.closePath();
     }
 
@@ -93,8 +93,8 @@ class Field{
         // Текст шапки
         context.fillStyle = "black";
         context.lineWidth = 100;
-        context.font = "bold 32px sans-serif";
-        context.fillText("HOLD", outlineGap, outlineGap + (32 * 0.75));
+        context.font = "bold 20px 'Press Start 2P'";
+        context.fillText("HOLD", outlineGap * 3, outlineGap + (32 * 0.75));
     }
 
     // Перерисовать поле
@@ -120,6 +120,7 @@ class Field{
     } 
 
     updateCoordinates(currentTetramino) {
+        if (isGameOver) return;
 
         for (let y = 0; y < FIELD.height; y++){
             for (let x = 0; x < FIELD.width; x++){

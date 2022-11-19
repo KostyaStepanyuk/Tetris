@@ -11,7 +11,7 @@
 <body>
 
     <div class="container">
-        <div class="settings">
+        <div class="settings" id="settingsBlock">
             <div class="title">
                 Settings
             </div>
@@ -35,38 +35,40 @@
                     <input type="checkbox" name="" id="">
                 </div>
             </div>
+
+            <div class="back" onclick = "showMenu()">
+                Back
+            </div>
         </div>
     
-        <div class="menu">
+        <div class="menu" id="menuBlock">
             <div class="logo">
                 <img src="../images/logo.png" alt="TETRIS">
             </div>
 
-            <div class="button-play">
+            <div class="button-play" onclick = "showGame()">
                 START
             </div>
 
-            <div class="button-settings">
+            <div class="button-settings" onclick = "showSettings()">
                 SETTINGS
-            </div>
-
-            <div class="fish">
-                <video src="../assets/video/fish.webm" autoplay></video>
             </div>
         </div>
     
-        <div class="game">
+        <div class="game" id="gameBlock">
             <div class="game-block" id="game-block">
                 <canvas id='canvas'>Обновите браузер</canvas>
             </div>
             <div class="score">
-                <span id = "score-counter">45,076</span>
+                <span id = "score-counter">0</span>
             </div>
+
+            <button onclick="play()">Start</button>
+            <button onclick="showMenu()">Back To Menu</button>
         </div>
     </div>
 
-    <button onclick="play()">Start</button>
-    <button onclick="immitateProblem()">Problem</button>
+    
 
 
 

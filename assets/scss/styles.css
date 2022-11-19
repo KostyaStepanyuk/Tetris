@@ -12,11 +12,12 @@
 
 body {
   background: black;
+  overflow-X: hidden;
 }
 
 .score {
-  background: red;
   text-align: center;
+  margin: 20px 0;
 }
 .score #score-counter {
   color: white;
@@ -25,6 +26,7 @@ body {
 .container {
   display: flex;
   width: 300vw;
+  height: 100vh;
 }
 .container .settings {
   text-transform: uppercase;
@@ -67,6 +69,13 @@ body {
   flex-direction: row;
   justify-content: space-between;
 }
+.container .settings .back {
+  font-size: 1.5rem;
+  position: relative;
+}
+.container .settings .back:hover {
+  cursor: pointer;
+}
 .container .menu {
   text-transform: uppercase;
   background: black;
@@ -78,6 +87,13 @@ body {
   align-items: center;
   justify-content: center;
 }
+.container .menu .button-play:hover {
+  cursor: pointer;
+}
+.container .menu .button-settings:hover {
+  cursor: pointer;
+}
 .container .game {
+  display: block;
   width: 100vw;
 }

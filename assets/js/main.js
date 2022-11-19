@@ -276,7 +276,6 @@ function showGame(){
     if (currentActiveBlock === "menu"){
         isPaused = false;
         requestAnimationFrame(animate);
-        backgroundMusic.play();
     }
     gameBlock.style.display = "block";
     gameBlock.scrollIntoView({behavior: "smooth"});
@@ -310,3 +309,5 @@ function gameOver(){
     // Текст шапки
     
 }
+
+showMenu();
